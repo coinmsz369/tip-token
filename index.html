@@ -889,16 +889,35 @@ let prevValues = {
 // ============================================================
 
 async function fetchTipData() {
-  const res = await fetch(DEXSCREENER_API);
-  const data = await res.json();
-  if (!data.pairs || data.pairs.length === 0) {
-    return { price: 0, mcap: 0 };
+  const DIRECT_URL = DEXSCREENER_API;
+  const PROXY_URL = 'https://corsproxy.io/?' + encodeURIComponent(DIRECT_URL);
+
+  for (const [label, url] of [['direct', DIRECT_URL], ['corsproxy', PROXY_URL]]) {
+    try {
+      console.log(`[TIP] Fetching via ${label}...`);
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.warn(`[TIP] ${label} returned ${res.status}`);
+        continue;
+      }
+      const data = await res.json();
+      if (!data.pairs || data.pairs.length === 0) {
+        console.warn(`[TIP] ${label}: no pairs found`);
+        continue;
+      }
+      const pair = data.pairs[0];
+      console.log(`[TIP] ${label} success: price=${pair.priceUsd}, fdv=${pair.fdv}`);
+      return {
+        price: parseFloat(pair.priceUsd || 0),
+        mcap: parseFloat(pair.fdv || pair.marketCap || 0)
+      };
+    } catch (err) {
+      console.error(`[TIP] ${label} failed:`, err.message);
+    }
   }
-  const pair = data.pairs[0];
-  return {
-    price: parseFloat(pair.priceUsd || 0),
-    mcap: parseFloat(pair.fdv || pair.marketCap || 0)
-  };
+
+  // Both attempts failed
+  return { price: 0, mcap: 0 };
 }
 
 // ============================================================
