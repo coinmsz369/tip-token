@@ -982,17 +982,22 @@ function formatNumber(n) {
 }
 
 function formatPrice(n) {
-  if (!n || n === 0) return '$0';
-  const str = n.toFixed(20);
-  const match = str.match(/^0\.(0*)/);
-  const leadingZeros = match ? match[1].length : 0;
-  const significant = str.replace(/^0\.0*/, '').slice(0, 4);
-  if (leadingZeros >= 4) {
-    const sub = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
-    const subscript = String(leadingZeros).split('').map(d => sub[d]).join('');
-    return '$0.0' + subscript + significant;
+  try {
+    if (!n || n === 0) return '$0';
+    const str = n.toFixed(20);
+    const match = str.match(/^0\.(0*)/);
+    const leadingZeros = match ? match[1].length : 0;
+    const significant = str.replace(/^0\.0*/, '').slice(0, 4);
+    if (leadingZeros >= 4) {
+      const sub = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+      const subscript = String(leadingZeros).split('').map(d => sub[d]).join('');
+      return '$0.0' + subscript + significant;
+    }
+    return '$' + n.toFixed(leadingZeros + 4);
+  } catch(e) {
+    console.warn('formatPrice error:', e, 'value:', n);
+    return '$' + String(n || '0');
   }
-  return '$' + n.toFixed(leadingZeros + 4);
 }
 
 function formatUSD(n) {
@@ -1125,6 +1130,7 @@ async function updateAll() {
       priceEl.textContent = loadingText;
       flowTipAmountEl.innerHTML = '$1 USDT ≈ <span class="shimmer"></span> $TIP';
       rateEl.textContent = '';
+    }
 
     if (tipData.mcap > 0) {
       animateValue(mcapEl, prevValues.mcap, tipData.mcap, formatMCap);
