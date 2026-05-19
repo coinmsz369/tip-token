@@ -974,8 +974,8 @@ function formatNumber(n) {
 
 function formatPrice(n) {
   if (n === 0) return '$0.0000';
-  if (n < 0.000001) return '$' + n.toExponential(2);
-  if (n < 0.001) return '$' + n.toFixed(8).replace(/0+$/, '');
+  if (n < 0.000001) return '$' + n.toPrecision(4);
+  if (n < 0.001) return '$' + n.toFixed(8);
   if (n < 1) return '$' + n.toFixed(4);
   return '$' + n.toFixed(2);
 }
