@@ -264,14 +264,6 @@ nav {
   font-weight: 500;
   letter-spacing: 0.3px;
 }
-.stat-sub {
-  font-size: 11px;
-  color: var(--accent-3);
-  font-weight: 600;
-  margin-top: 6px;
-  font-family: 'Orbitron', monospace;
-  opacity: 0.9;
-}
 
 /* === Story Area === */
 .story-area {
@@ -658,7 +650,6 @@ footer .footer-links a:hover {
         <div class="stat-icon">📈</div>
         <div class="stat-value" id="tip-price"><span class="shimmer"></span></div>
         <div class="stat-label" data-i18n="stat.price">$TIP 当前价格</div>
-        <div class="stat-sub" id="tip-rate"></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon">🚀</div>
@@ -1113,8 +1104,6 @@ async function updateAll() {
     const priceEl = document.getElementById('tip-price');
     const mcapEl = document.getElementById('tip-mcap');
     const flowTipAmountEl = document.getElementById('flow-tip-amount');
-    const rateEl = document.getElementById('tip-rate');
-
     animateValue(participantsEl, prevValues.participants, txData.txCount, formatNumber);
     animateValue(donationsEl, prevValues.donations, usdValue, formatUSD);
 
@@ -1125,11 +1114,9 @@ async function updateAll() {
       const tipAmount = 1 / tipData.price;
       const tipStr = tipAmount >= 1000 ? tipAmount.toFixed(0) : tipAmount >= 1 ? tipAmount.toFixed(2) : tipAmount.toFixed(4);
       flowTipAmountEl.textContent = '$1 USDT ≈ ' + tipStr + ' $TIP';
-      rateEl.textContent = '1 USD ≈ ' + Math.round(tipAmount).toLocaleString() + ' TIP';
     } else {
       priceEl.textContent = loadingText;
       flowTipAmountEl.innerHTML = '$1 USDT ≈ <span class="shimmer"></span> $TIP';
-      rateEl.textContent = '';
     }
 
     if (tipData.mcap > 0) {
