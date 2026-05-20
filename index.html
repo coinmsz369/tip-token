@@ -289,11 +289,48 @@ nav {
   margin-top: 16px;
   font-weight: 500;
 }
-.story-body {
-  font-size: clamp(15px, 2.2vw, 19px);
-  color: var(--text-secondary);
-  line-height: 2;
+.about-section {
   max-width: 680px;
+  margin: 0 auto;
+}
+.about-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 20px;
+}
+.about-items {
+  text-align: left;
+  line-height: 1.8;
+}
+.about-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+.tag {
+  background: rgba(245,166,35,0.1);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--accent-3);
+  white-space: nowrap;
+}
+.about-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  letter-spacing: 0.05em;
 }
 .section-sep {
   height: 1px;
@@ -366,7 +403,7 @@ nav {
   border: 1px solid rgba(255,107,0,0.2);
   border-radius: var(--radius);
   padding: 60px 40px;
-  margin: 20px 0 40px;
+  margin: 20px 0 20px;
   text-align: center;
   position: relative;
 }
@@ -406,7 +443,7 @@ nav {
 
 /* Address Section */
 .address-section {
-  padding: 60px 0 80px;
+  padding: 40px 0 80px;
 }
 .address-box {
   background: var(--bg-card);
@@ -681,9 +718,7 @@ footer .footer-links a:hover {
     <!-- Segment 2: Explanation -->
     <div class="story-block">
       <div class="scroll-fade fade-delay-1">
-        <p class="story-body" data-i18n="story.explain">
-          $TIP 是一个链上实验。你捐出 $1，智能合约自动执行：90% 买入 $TIP 代币，10% 用于维持链上运转。全程 AI 驱动，代码开源，任何人可验证。没有团队钱包，没有预设解锁，没有中心化控制。
-        </p>
+        <div class="about-section" data-i18n-html="story.explain"></div>
       </div>
     </div>
 
@@ -816,7 +851,7 @@ const translations = {
     'stat.mcap': '$TIP 市值',
     'story.impact1': '如果每个人都付出一美元<br>那就是 80 亿美元',
     'story.impact1.sub': '没有人因此变穷，但世界可能因此改变',
-    'story.explain': '$TIP 是一个链上实验。你捐出 $1，智能合约自动执行：90% 买入 $TIP 代币，10% 用于维持链上运转。全程 AI 驱动，代码开源，任何人可验证。没有团队钱包，没有预设解锁，没有中心化控制。',
+    'story.explain': '<p class="about-desc">$TIP 是一个纯链上实验</p><div class="about-items"><div class="about-item">🔥 <span>捐出 <strong>$1</strong>，智能合约自动执行</span></div><div class="about-item">📈 <span><strong>90%</strong> 自动买入 $TIP 代币</span></div><div class="about-item">⚡ <span><strong>10%</strong> 维持链上运转</span></div></div><div class="about-tags"><span class="tag">🤖 全程 AI 驱动</span><span class="tag">📂 代码开源</span><span class="tag">✅ 任何人可验证</span></div><p class="about-footer">没有团队钱包 · 没有预设解锁 · 没有中心化控制</p>',
     'flow.step1': '你捐赠 $1 USDT',
     'flow.step2': '即刻获得等值 $TIP 代币',
     'flow.step3': '你的 $1 自动分配',
@@ -845,7 +880,7 @@ const translations = {
     'stat.mcap': 'Market Cap',
     'story.impact1': 'If every person gave one dollar<br>that\'s $8 billion',
     'story.impact1.sub': 'No one gets poorer, but the world might change forever',
-    'story.explain': '$TIP is an on-chain experiment. You donate $1, the smart contract executes automatically: 90% buys $TIP tokens, 10% keeps the chain running. AI-powered, open-source, verifiable by anyone. No team wallet, no preset unlocks, no central control.',
+    'story.explain': '<p class="about-desc">$TIP is a pure on-chain experiment</p><div class="about-items"><div class="about-item">🔥 <span>Donate <strong>$1</strong>, smart contract executes</span></div><div class="about-item">📈 <span><strong>90%</strong> auto-buys $TIP tokens</span></div><div class="about-item">⚡ <span><strong>10%</strong> keeps the chain running</span></div></div><div class="about-tags"><span class="tag">🤖 AI-powered</span><span class="tag">📂 Open-source</span><span class="tag">✅ Verifiable by anyone</span></div><p class="about-footer">No team wallet · No preset unlocks · No central control</p>',
     'flow.step1': 'You donate $1 USDT',
     'flow.step2': 'Instantly receive $1 worth of $TIP',
     'flow.step3': 'Your $1 is automatically allocated',
