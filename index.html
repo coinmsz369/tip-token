@@ -792,17 +792,12 @@ footer .footer-links a:hover {
 // Configuration
 // ============================================================
 
-// BSCScan API Key — get a free one at https://bscscan.com/myapikey
-// 填入你的免费 API Key（免费版每天可调用 5 次）
-const BSCSCAN_API_KEY = 'VMDP37ZR22KCZUAM78VGBAPWMTCSUXMYSJ';
-
 // On-chain addresses
 const DONATION_ADDRESS = '0x6581300195B9c73177376b02D8C5E4cA2d06AB21';
 const TIP_CONTRACT = '0x35E0507Ca627Bf37B842C4F8B1DED59d943AE153';
 const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
 
 // API endpoints
-const BSCSCAN_API = 'https://api.bscscan.com/api';
 const DEXSCREENER_API = 'https://api.dexscreener.com/latest/dex/tokens/' + TIP_CONTRACT;
 
 // Refresh interval (ms)
@@ -921,44 +916,63 @@ async function fetchTipData() {
 }
 
 // ============================================================
-// BSCScan Transaction Data
+// USDT Transfer Data via BSC RPC
 // ============================================================
 
 async function fetchTxData() {
-  if (!BSCSCAN_API_KEY) {
-    return { txCount: 0, totalUsdt: 0, hasKey: false };
-  }
+  const RPC_URL = 'https://bsc-dataseed.binance.org/';
+  // keccak256("Transfer(address,address,uint256)")
+  const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  const TO_TOPIC = '0x000000000000000000000000' + DONATION_ADDRESS.toLowerCase().replace('0x', '');
 
   try {
-    const url = BSCSCAN_API + '?module=account&action=tokentx' +
-      '&contractaddress=' + USDT_CONTRACT +
-      '&address=' + DONATION_ADDRESS +
-      '&page=1&offset=100&sort=desc&apikey=' + BSCSCAN_API_KEY;
+    console.log('[TIP] Fetching USDT transfers via BSC RPC...');
 
-    const res = await fetch(url);
+    const res = await fetch(RPC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0', id: 1,
+        method: 'eth_getLogs',
+        params: [{
+          address: USDT_CONTRACT,
+          topics: [TRANSFER_TOPIC, null, TO_TOPIC],
+          fromBlock: '0x0',
+          toBlock: 'latest'
+        }]
+      })
+    });
+
     const data = await res.json();
 
-    if (data.status !== '1') {
-      console.warn('BSCScan API warning:', data.message);
+    if (!data.result) {
+      console.warn('[TIP] RPC error:', data.error || 'no result');
       return { txCount: 0, totalUsdt: 0, hasKey: true };
     }
 
-    const txs = data.result || [];
-    // Filter incoming USDT transfers (to === DONATION_ADDRESS)
-    const incoming = txs.filter(tx =>
-      tx.to && tx.to.toLowerCase() === DONATION_ADDRESS.toLowerCase()
-    );
+    const logs = data.result;
+    console.log('[TIP] USDT transfers found:', logs.length);
 
-    // Sum total USDT received (USDT on this BSC contract uses 18 decimals)
-    let totalUsdt = 0;
-    incoming.forEach(tx => {
-      totalUsdt += parseFloat(tx.value) / 1e6;
-    });
+    let totalWei = BigInt(0);
+    for (let i = 0; i < logs.length; i++) {
+      const log = logs[i];
+      const value = BigInt(log.data);
+      totalWei += value;
+      // Log first 3 transactions for debugging
+      if (i < 3) {
+        const usdtVal = Number(value) / 1e18;
+        console.log('[TIP] Transfer #' + i + ': tx=' + log.transactionHash +
+          ' value=' + usdtVal + ' USDT');
+      }
+    }
 
-    return { txCount: incoming.length, totalUsdt: totalUsdt, hasKey: true };
+    const totalUsdt = Number(totalWei) / 1e18;
+    console.log('[TIP] Total USDT received:', totalUsdt, '(' + logs.length + ' transfers)');
+
+    return { txCount: logs.length, totalUsdt: totalUsdt, hasKey: true };
   } catch (err) {
-    console.warn('BSCScan USDT fetch failed:', err);
-    return { txCount: 0, totalUsdt: 0, hasKey: true };
+    console.error('[TIP] RPC fetch failed:', err);
+    return { txCount: 0, totalUsdt: 0, hasKey: false };
   }
 }
 
