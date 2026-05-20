@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$TIP 空投申请 | TIP Token</title>
+    <meta name="description" content="$TIP 空投申请页面，填写 BSC 钱包地址和微信号，提交到 Google Sheets。">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            min-height: 100%;
+            background: radial-gradient(circle at top, rgba(255, 164, 0, 0.14), transparent 25%),
+                        linear-gradient(180deg, #050509 0%, #111016 100%);
+            color: #f5f2ec;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(15, 15, 23, 0.96);
+            border: 1px solid rgba(255, 165, 0, 0.15);
+            border-radius: 28px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .top-panel {
+            padding: 36px 30px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 165, 0, 0.12);
+        }
+
+        .logo-wrap {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 18px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 173, 51, 0.2), rgba(255, 99, 0, 0.15));
+            border: 1px solid rgba(255, 165, 0, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-wrap img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
+
+        .title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #d5c6a1;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            max-width: 82%;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 32px 30px 36px;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 165, 0, 0.12);
+            border-radius: 24px;
+            padding: 26px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #d6c7ae;
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #f7f3e8;
+            padding: 16px 18px;
+            font-size: 0.98rem;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        input:focus {
+            border-color: rgba(255, 165, 0, 0.65);
+            box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.12);
+        }
+
+        .hint {
+            margin-top: 8px;
+            color: #b69d6d;
+            font-size: 0.88rem;
+        }
+
+        .button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 22px;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ffb347 0%, #ff7a18 100%);
+            color: #111018;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 30px rgba(255, 129, 0, 0.28);
+        }
+
+        .button:disabled {
+            background: rgba(255, 165, 0, 0.4);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .message {
+            margin-top: 18px;
+            font-size: 0.96rem;
+            line-height: 1.7;
+            text-align: center;
+            color: #a7d788;
+        }
+
+        .error {
+            color: #f8a38f;
+        }
+
+        .footer-note {
+            padding: 18px 30px 26px;
+            text-align: center;
+            color: #7f7b70;
+            font-size: 0.92rem;
+            border-top: 1px solid rgba(255, 165, 0, 0.12);
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                border-radius: 22px;
+            }
+
+            .top-panel {
+                padding: 28px 20px 20px;
+            }
+
+            .content {
+                padding: 24px 20px 28px;
+            }
+
+            .title {
+                font-size: 1.65rem;
+            }
+
+            .subtitle {
+                max-width: 100%;
+                font-size: 0.96rem;
+            }
+
+            .form-card {
+                padding: 22px;
+            }
+
+            input {
+                padding: 14px 16px;
+            }
+
+            .button {
+                padding: 15px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="top-panel">
+            <div class="logo-wrap">
+                <img src="logo.png" alt="TIP Token Logo">
+            </div>
+            <div class="title">$TIP 空投申请</div>
+            <div class="subtitle">加入早期社区，领取专属空投</div>
+        </div>
+
+        <div class="content">
+            <div class="form-card">
+                <form id="airdropForm">
+                    <div class="form-group">
+                        <label for="walletAddress">BSC 钱包地址</label>
+                        <input id="walletAddress" name="walletAddress" type="text" placeholder="0x..." autocomplete="off" required>
+                        <div class="hint">请输入有效的 BSC 钱包地址。</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wechatId">微信号</label>
+                        <input id="wechatId" name="wechatId" type="text" placeholder="你的微信号" autocomplete="off" required>
+                        <div class="hint">填写微信号以便空投通知。</div>
+                    </div>
+
+                    <button type="submit" class="button" id="submitButton">提交申请</button>
+                    <div id="formMessage" class="message" aria-live="polite"></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-note">本次空投仅面向早期社区成员，名额有限</div>
+    </div>
+
+    <script>
+        const form = document.getElementById('airdropForm');
+        const walletInput = document.getElementById('walletAddress');
+        const wechatInput = document.getElementById('wechatId');
+        const submitButton = document.getElementById('submitButton');
+        const formMessage = document.getElementById('formMessage');
+        const STORAGE_KEY = 'tip_airdrop_wallets';
+
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxCrMTglN2kZdu4IfXUxmPcruzZu6xajHouCnGEn3jHDlk4LT8N3LLTVZKCj0TLNbSdVA/exec';
+
+        function isValidBscAddress(address) {
+            return /^0x[a-fA-F0-9]{40}$/.test(address.trim());
+        }
+
+        function getSubmittedWallets() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveSubmittedWallet(address) {
+            const list = getSubmittedWallets();
+            list.push(address.toLowerCase());
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        function showMessage(text, isError = false) {
+            formMessage.textContent = text;
+            formMessage.classList.toggle('error', isError);
+        }
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const walletAddress = walletInput.value.trim();
+            const wechatId = wechatInput.value.trim();
+
+            if (!isValidBscAddress(walletAddress)) {
+                showMessage('请输入有效的 BSC 钱包地址。', true);
+                walletInput.focus();
+                return;
+            }
+
+            if (!wechatId) {
+                showMessage('请输入微信号。', true);
+                wechatInput.focus();
+                return;
+            }
+
+            const submitted = getSubmittedWallets();
+            if (submitted.includes(walletAddress.toLowerCase())) {
+                showMessage('该钱包地址已提交，请勿重复申请。', true);
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = '提交中...';
+            showMessage('');
+
+            try {
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet: walletAddress,
+                        wechat: wechatId,
+                    }),
+                });
+
+                saveSubmittedWallet(walletAddress);
+                showMessage('申请已提交，请等待空投发放');
+                form.reset();
+            } catch (error) {
+                console.error(error);
+                showMessage('提交失败，请稍后重试。', true);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = '提交申请';
+            }
+        });
+    </script>
+</body>
+</html>
