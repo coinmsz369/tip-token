@@ -940,7 +940,7 @@ async function fetchTxData() {
     const totalWei = BigInt(balanceHex);
     const totalUsdt = Number(totalWei) / 1e18;
     // Each participant donates ~$1, so participant count ≈ floor(balance)
-    const participants = Math.floor(totalUsdt) + (totalUsdt > 0 ? 1 : 0);
+    const participants = Math.floor(totalUsdt);
 
     console.log('[TIP] USDT balance:', totalUsdt, '≈', participants, 'participant(s)');
     console.log('[TIP] Raw balance hex:', balanceHex);
@@ -985,7 +985,8 @@ function formatUSD(n) {
   if (n === 0) return '$0';
   if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(2) + 'M';
   if (n >= 1_000) return '$' + (n / 1_000).toFixed(1) + 'K';
-  return '$' + Math.round(n).toString();
+  if (n >= 1) return '$' + n.toFixed(2);
+  return '$' + n.toFixed(4);
 }
 
 function formatMCap(n) {
