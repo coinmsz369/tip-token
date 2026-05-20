@@ -916,60 +916,36 @@ async function fetchTipData() {
 }
 
 // ============================================================
-// USDT Transfer Data via BSC RPC
+// USDT Balance & Transfer Data via BSC RPC
 // ============================================================
 
 async function fetchTxData() {
   const RPC_URL = 'https://bsc-dataseed.binance.org/';
-  // keccak256("Transfer(address,address,uint256)")
-  const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-  const TO_TOPIC = '0x000000000000000000000000' + DONATION_ADDRESS.toLowerCase().replace('0x', '');
+  // balanceOf(address) — returns the current USDT balance of the donation address
+  const BALANCE_OF = '0x70a082310000000000000000000000006581300195b9c73177376b02d8c5e4ca2d06ab21';
 
   try {
-    console.log('[TIP] Fetching USDT transfers via BSC RPC...');
+    console.log('[TIP] Fetching USDT balance via BSC RPC...');
 
     const res = await fetch(RPC_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'eth_getLogs',
-        params: [{
-          address: USDT_CONTRACT,
-          topics: [TRANSFER_TOPIC, null, TO_TOPIC],
-          fromBlock: '0x0',
-          toBlock: 'latest'
-        }]
-      })
+      body: JSON.stringify([
+        { jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: USDT_CONTRACT, data: BALANCE_OF }, 'latest'] }
+      ])
     });
 
-    const data = await res.json();
-
-    if (!data.result) {
-      console.warn('[TIP] RPC error:', data.error || 'no result');
-      return { txCount: 0, totalUsdt: 0, hasKey: true };
-    }
-
-    const logs = data.result;
-    console.log('[TIP] USDT transfers found:', logs.length);
-
-    let totalWei = BigInt(0);
-    for (let i = 0; i < logs.length; i++) {
-      const log = logs[i];
-      const value = BigInt(log.data);
-      totalWei += value;
-      // Log first 3 transactions for debugging
-      if (i < 3) {
-        const usdtVal = Number(value) / 1e18;
-        console.log('[TIP] Transfer #' + i + ': tx=' + log.transactionHash +
-          ' value=' + usdtVal + ' USDT');
-      }
-    }
-
+    const [result] = await res.json();
+    const balanceHex = result?.result || '0x0';
+    const totalWei = BigInt(balanceHex);
     const totalUsdt = Number(totalWei) / 1e18;
-    console.log('[TIP] Total USDT received:', totalUsdt, '(' + logs.length + ' transfers)');
+    // Each participant donates ~$1, so participant count ≈ floor(balance)
+    const participants = Math.floor(totalUsdt) + (totalUsdt > 0 ? 1 : 0);
 
-    return { txCount: logs.length, totalUsdt: totalUsdt, hasKey: true };
+    console.log('[TIP] USDT balance:', totalUsdt, '≈', participants, 'participant(s)');
+    console.log('[TIP] Raw balance hex:', balanceHex);
+
+    return { txCount: participants, totalUsdt: totalUsdt, hasKey: true };
   } catch (err) {
     console.error('[TIP] RPC fetch failed:', err);
     return { txCount: 0, totalUsdt: 0, hasKey: false };
@@ -1151,7 +1127,7 @@ async function updateAll() {
       participants: txData.txCount,
       tipPrice: tipData.price,
       tipMCap: tipData.mcap,
-      hasBscScanKey: txData.hasKey
+      source: 'BSC RPC'
     });
 
   } catch (err) {
