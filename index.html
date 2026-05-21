@@ -277,6 +277,8 @@ nav {
   color: var(--text-primary);
   margin-bottom: 4px;
   min-height: 1.4em;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 .stat-label {
   font-size: 13px;
@@ -664,6 +666,10 @@ footer .footer-links a:hover {
   .hero { padding: 90px 0 32px; }
   .hero-logo { width: 64px; height: 64px; }
   .stat-card { padding: 16px 12px; }
+  .stat-card-price .stat-value {
+    font-size: clamp(14px, 4vw, 20px);
+    word-break: break-all;
+  }
   .address-box { padding: 24px 16px; }
   nav { padding: 12px 16px; }
   .mech-flow { padding-left: 8px; }
